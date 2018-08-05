@@ -23,7 +23,21 @@ while true; do
     esac
 done
 
+# Default is server cert
+CERT_TYPE="server_cert"
+
+while true; do
+    read -p "Choose cert type,y for server,n for client?(y/n) " isServerCert
+    case $isServerCert in
+        [Yy]* ) CERT_TYPE="server_cert"; break;;
+        [Nn]* ) CERT_TYPE="usr_cert"; break;;
+        * ) echo "Please answer y or n. ";;
+    esac
+done
+
 echo $ENCRYPT_TYPE;
+echo $CERT_TYPE;
+
 # General New Cert
 cd "${CA_PATH}";
 
@@ -41,7 +55,7 @@ openssl req -config "${CONFIG_MIDDLE_PATH}/openssl.cnf" \
       -key "intermediate/private/${CERT_NAME}.key.pem" \
       -new -sha256 -out "intermediate/csr/${CERT_NAME}.csr.pem";
 openssl ca -config "${CONFIG_MIDDLE_PATH}/openssl.cnf" \
-      -extensions server_cert -days "${CERT_DAYS}" -notext -md sha256 \
+      -extensions "${CERT_TYPE}" -days "${CERT_DAYS}" -notext -md sha256 \
       -in "intermediate/csr/${CERT_NAME}.csr.pem" \
       -out "intermediate/certs/${CERT_NAME}.cert.pem";
 chmod 444 "intermediate/certs/${CERT_NAME}.cert.pem";
